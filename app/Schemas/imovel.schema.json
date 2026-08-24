@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lopespremier.com/asap/schema/imovel.schema.json",
+  "title": "Imóvel ASAP",
+  "description": "Contrato de dados estruturados extraídos da fala/texto livre do corretor em campo. Campos ausentes na fala devem ser null, nunca inventados.",
+  "type": "object",
+  "properties": {
+    "tipo_imovel": {
+      "type": "string",
+      "enum": ["apartamento", "casa", "terreno", "comercial", "cobertura"],
+      "description": "Único campo obrigatório — âncora para o restante da extração e para o script de descrição."
+    },
+    "negociacao": {
+      "type": ["string", "null"],
+      "enum": ["venda", "locacao", "venda_e_locacao", null],
+      "description": "Espelha os toggles 'Vender' / 'Alugar' do Prontos. Determina regras do script oficial (ex.: ACEITA PET só existe em locação residencial)."
+    },
+    "utilizacao": {
+      "type": ["string", "null"],
+      "enum": ["residencial", "comercial", null],
+      "description": "Espelha o campo 'Utilização' do Prontos. ACEITA PET nunca se aplica a comercial."
+    },
+    "bairro": {
+      "type": ["string", "null"]
+    },
+    "cidade": {
+      "type": ["string", "null"]
+    },
+    "metragem": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0
+    },
+    "quartos": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "suites": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "banheiros": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "vagas": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "null = corretor não mencionou. 0 = corretor confirmou que não tem vaga. A descrição só omite o bloco de vaga quando null."
+    },
+    "valor": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0
+    },
+    "condominio": {
+      "type": ["number", "null"]
+    },
+    "iptu": {
+      "type": ["number", "null"]
+    },
+    "iptu_isento": {
+      "type": "boolean",
+      "default": false,
+      "description": "true somente quando o corretor disser expressamente que o imóvel é isento de IPTU (nesse caso \"iptu\" deve ser null — nunca coexistem com valor). false em qualquer outro caso, inclusive quando IPTU não foi mencionado — este campo nunca é null."
+    },
+    "andar": {
+      "type": ["integer", "null"]
+    },
+    "ano_construcao": {
+      "type": ["integer", "null"],
+      "minimum": 1900,
+      "maximum": 2100
+    },
+    "em_condominio": {
+      "type": ["boolean", "null"],
+      "description": "null = não mencionado (tela de revisão deve forçar decisão antes do envio, já que afeta diretamente o texto da descrição)."
+    },
+    "reformado": {
+      "type": ["boolean", "null"],
+      "description": "Espelha o toggle 'Imóvel foi Reformado?' do Prontos."
+    },
+    "estado_conservacao": {
+      "type": ["string", "null"],
+      "enum": ["novo", "reformado", "usado", "a_reformar", null],
+      "description": "Usado apenas para a descrição (script v3 exige mencionar estado de conservação no texto). Inferência: reformado=true → 'reformado'; corretor menciona explicitamente necessidade de reforma → 'a_reformar'; corretor menciona ser novo/lançamento/nunca habitado → 'novo'; ausência de qualquer sinal → default 'usado' (estado neutro, não é invenção de fato negativo)."
+    },
+    "vagas_cobertura": {
+      "type": ["string", "null"],
+      "enum": ["coberta", "descoberta", "mista", null],
+      "description": "Só preenchido se o corretor mencionar explicitamente. Se null, a descrição menciona apenas a quantidade de vagas sem especificar cobertura, nunca inventa."
+    },
+    "mobiliado": {
+      "type": ["boolean", "null"],
+      "description": "Espelha o toggle 'Imóvel está Mobiliado?' do Prontos."
+    },
+    "chaves": {
+      "type": ["string", "null"],
+      "description": "Onde/com quem estão as chaves. Campo próprio no Prontos, texto livre curto."
+    },
+    "nome_edificio": {
+      "type": ["string", "null"],
+      "description": "Nome do prédio/condomínio, se mencionado pelo corretor. Uso exclusivamente auxiliar para a busca automática do ano de construção — nunca aparece no título (regra do script oficial: nunca colocar nome do condomínio) nem precisa aparecer na descrição final."
+    },
+    "diferenciais": {
+      "type": "array",
+      "description": "Lista fechada — espelha as checkboxes de 'Características' do Prontos. A extração deve mapear a fala/foto para esta lista, nunca inventar um rótulo fora dela; qualquer diferencial mencionado que não bata com a lista vai para diferenciais_outros ou observacoes_corretor.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "armario_embutido",
+          "cozinha_mobiliada",
+          "portaria",
+          "lavabo",
+          "churrasqueira",
+          "garagem",
+          "quintal",
+          "dependencia_empregados",
+          "servicos",
+          "cozinha_americana",
+          "piscina"
+        ]
+      },
+      "default": []
+    },
+    "diferenciais_outros": {
+      "type": "array",
+      "description": "PENDENTE DE CALIBRAÇÃO: espelha o dropdown 'Outros' do Prontos (lista mais longa, ainda não mapeada por completo — ex.: ar-condicionado fica aqui, não em 'diferenciais'). Até termos a lista fechada real desse dropdown, aceitar texto livre curto por item, sinalizado para revisão manual antes de publicar.",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "observacoes_visuais": {
+      "type": "array",
+      "description": "Impressões factuais confirmadas nas fotos que não são diferencial binário (ex.: 'sala ampla e bem iluminada', 'acabamento em porcelanato'). Não vira campo clicável — alimenta o texto corrido da seção O IMOVEL na descrição. Só incluir o que for visivelmente confirmável na foto, nunca suposição.",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "titulo_site": {
+      "type": ["string", "null"],
+      "description": "Preenchido no pós-processamento pelo script oficial. Formato: 'Tipo de imóvel + metragem + número de quartos + negociação + bairro'. Usa 'quartos' (nunca 'dormitórios'), nunca inclui nome do condomínio. Ex.: 'Apartamento 75 m², 2 quartos, venda Tatuapé'."
+    },
+    "descricao_gerada": {
+      "type": ["string", "null"],
+      "minLength": 300,
+      "description": "Preenchido na etapa de pós-processamento (script oficial). 300 é o piso técnico exigido pelo Prontos para publicar; a meta de qualidade do projeto é 3.000 caracteres na descrição completa (todas as seções do script somadas)."
+    },
+    "observacoes_corretor": {
+      "type": ["string", "null"],
+      "description": "Texto livre que não mapeou para nenhum campo estruturado — nunca descartado."
+    }
+  },
+  "required": ["tipo_imovel"],
+  "additionalProperties": false
+}
