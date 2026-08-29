@@ -33,14 +33,18 @@ class StoreImovelStagingRequest extends FormRequest
             'bairro' => ['nullable', 'string'],
             'logradouro' => ['nullable', 'string'],
             'numero' => ['nullable', 'string'],
+            'sem_numero' => ['nullable', 'boolean'],
             'cidade' => ['nullable', 'string'],
             'cep' => ['nullable', 'string'],
+            'estado' => ['nullable', 'string', 'size:2'],
             'complemento' => ['nullable', 'string'],
             'metragem' => ['nullable', 'numeric'],
+            'area_total' => ['nullable', 'numeric'],
 
             'quartos' => ['nullable', 'integer', 'min:0'],
             'suites' => ['nullable', 'integer', 'min:0'],
             'banheiros' => ['nullable', 'integer', 'min:0'],
+            'salas' => ['nullable', 'integer', 'min:0'],
             'vagas' => ['nullable', 'integer', 'min:0'],
             'vagas_cobertura' => ['nullable', 'in:coberta,descoberta,mista'],
 
@@ -57,6 +61,14 @@ class StoreImovelStagingRequest extends FormRequest
             'estado_conservacao' => ['nullable', 'in:novo,reformado,usado,a_reformar'],
             'mobiliado' => ['nullable', 'boolean'],
             'nome_edificio' => ['nullable', 'string'],
+
+            'data_confirmacao_proprietario' => ['nullable', 'date'],
+            'condominio_situacao' => ['nullable', 'in:valor_informado,isento,sob_consulta'],
+            'iptu_situacao' => ['nullable', 'in:valor_informado,isento,sob_consulta'],
+            'iptu_periodicidade' => ['nullable', 'in:mensal,anual'],
+            'outros_encargos' => ['nullable', 'string'],
+            'disponibilidade_visita' => ['nullable', 'string'],
+            'previsao_entrega' => ['nullable', 'string'],
 
             'chaves' => ['nullable', 'string'],
 

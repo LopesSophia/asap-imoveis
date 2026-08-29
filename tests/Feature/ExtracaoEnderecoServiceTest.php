@@ -33,6 +33,32 @@ class ExtracaoEnderecoServiceTest extends TestCase
         $this->assertSame('alta', $endereco['confianca']);
     }
 
+    /**
+     * Regressão do Bug 2: o schema do prompt não tinha "estado" — o campo
+     * nunca era extraído, ficando sempre null e bloqueando finalizar()
+     * mesmo com o endereço completo. O serviço em si é um pass-through do
+     * JSON da IA (não filtra campos), então isto trava o contrato: se a IA
+     * retornar "estado", ele tem que chegar inteiro até quem chamou.
+     */
+    public function test_extrai_estado_quando_presente_na_resposta(): void
+    {
+        Http::fake([
+            'api.anthropic.com/*' => Http::response([
+                'content' => [[
+                    'type' => 'text',
+                    'text' => '{"logradouro":"Rua Vergueiro","numero":"1000","bairro":"Vila Mariana","cidade":"São Paulo","estado":"SP","cep":"04101-000","complemento":"apartamento 52","confianca":"alta"}',
+                ]],
+            ], 200),
+        ]);
+
+        $endereco = app(ExtracaoEnderecoService::class)->extrair(
+            'Rua Vergueiro, 1000, apartamento 52, Vila Mariana, São Paulo - SP, CEP 04101-000'
+        );
+
+        $this->assertSame('SP', $endereco['estado']);
+        $this->assertSame('São Paulo', $endereco['cidade']);
+    }
+
     public function test_falha_da_api_lanca_excecao_clara(): void
     {
         Http::fake([

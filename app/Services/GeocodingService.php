@@ -75,7 +75,8 @@ class GeocodingService
     private function montarEnderecoParaConsulta(array $endereco): string
     {
         $logradouroComNumero = trim($endereco['logradouro'].(! empty($endereco['numero']) ? ', '.$endereco['numero'] : ''));
+        $estado = $endereco['estado'] ?? 'SP';
 
-        return "{$logradouroComNumero} - {$endereco['bairro']}, {$endereco['cidade']} - SP, Brasil";
+        return "{$logradouroComNumero} - {$endereco['bairro']}, {$endereco['cidade']} - {$estado}, Brasil";
     }
 }

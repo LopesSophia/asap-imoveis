@@ -381,7 +381,9 @@ class FotoCapaTest extends TestCase
                             'diferenciais' => ['garagem'],
                             'diferenciais_outros' => [],
                             'observacoes_visuais' => ['sala ampla'],
-                            'alertas_fotos' => ['1 foto parece banner'],
+                            'alertas_fotos' => [
+                                ['identificador_foto' => null, 'mensagem' => '1 foto parece banner'],
+                            ],
                             'candidata_capa' => ['identificador_foto' => (string) $idsDoLote[0], 'pontuacao' => 8, 'motivo' => 'boa capa'],
                         ],
                     ]],
@@ -404,7 +406,10 @@ class FotoCapaTest extends TestCase
 
         // observacoes_visuais/alertas_fotos SUBSTITUÍDOS, não mesclados com o antigo.
         $this->assertSame(['sala ampla'], $imovelStaging->observacoes_visuais);
-        $this->assertSame(['1 foto parece banner'], $imovelStaging->alertas_fotos);
+        $this->assertSame(
+            [['foto_id' => null, 'mensagem' => '1 foto parece banner']],
+            $imovelStaging->alertas_fotos
+        );
 
         $this->assertSame($lotes[0][0], $imovelStaging->foto_capa_sugerida_id);
         $this->assertSame('boa capa', $imovelStaging->foto_capa_motivo);

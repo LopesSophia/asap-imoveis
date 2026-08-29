@@ -40,6 +40,18 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-4-6'),
     ],
 
+    'gemini' => [
+        'key' => env('GOOGLE_GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-image'),
+
+        // Limitadores de custo/segurança da edição de fotos — nunca
+        // ultrapassados, reservados atomicamente antes de despachar o job
+        // (ver EdicaoFotoCotaService). Configuráveis sem alterar código.
+        'limite_tentativas_por_foto' => env('GEMINI_LIMITE_TENTATIVAS_POR_FOTO', 2),
+        'limite_tentativas_por_imovel' => env('GEMINI_LIMITE_TENTATIVAS_POR_IMOVEL', 10),
+        'limite_chamadas_mensal' => env('GEMINI_LIMITE_CHAMADAS_MENSAL', 200),
+    ],
+
     'google_maps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
     ],

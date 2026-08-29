@@ -28,6 +28,18 @@ class EnriquecimentoLocalizacaoControllerTest extends TestCase
         ], $atributos));
     }
 
+    /**
+     * O endereço confirmado agora também alimenta BuscaAnoConstrucaoService
+     * (mesmo host api.anthropic.com de outras extrações) — sempre fakeado
+     * aqui pra nunca disparar uma chamada de rede de verdade.
+     */
+    private function respostaAnoConstrucaoNulo(): array
+    {
+        return [
+            'content' => [['type' => 'text', 'text' => '{"ano_construcao": null}']],
+        ];
+    }
+
     public function test_enriquecer_com_endereco_incompleto_retorna_422_sem_chamar_google(): void
     {
         Http::fake();
@@ -69,6 +81,7 @@ class EnriquecimentoLocalizacaoControllerTest extends TestCase
                 ]],
             ], 200),
             'places.googleapis.com/*' => Http::response(['places' => []], 200),
+            'api.anthropic.com/*' => Http::response($this->respostaAnoConstrucaoNulo(), 200),
         ]);
 
         $imovelStaging = $this->criarRascunho([
@@ -96,6 +109,7 @@ class EnriquecimentoLocalizacaoControllerTest extends TestCase
                 ]],
             ], 200),
             'places.googleapis.com/*' => Http::response(['places' => []], 200),
+            'api.anthropic.com/*' => Http::response($this->respostaAnoConstrucaoNulo(), 200),
         ]);
 
         $imovelStaging = $this->criarRascunho([
